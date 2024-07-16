@@ -10,14 +10,6 @@ class $modify(MyCCHttpClient, CCHttpClient){
 
 	//here be dragons
 
-	/*
-		tldr; hooking the dtor didn't work, can't add fields to a CCObject
-		somewhere in the chain, the reference count of the CCHttpRequest is fucked
-		so I delete it, as I know it cannot be used anywhere else
-		There has to be a global map that I can reference as well to prevent the EventListener from going out of scope
-		and thus killing itself, normally I'd just add it as a field, but alas
-	*/
-
 	void send(CCHttpRequest* request){
     	auto req = web::WebRequest();
 
@@ -26,23 +18,24 @@ class $modify(MyCCHttpClient, CCHttpClient){
 			bytes.push_back(static_cast<uint8_t>(request->getRequestData()[i]));
 		}
 	
-		req.userAgent("");
 		if(bytes.size() > 0){
 			req.body(bytes);
 		}
+
+		req.userAgent("");
 		req.version(web::HttpVersion::VERSION_2_0);
 
 		EventListener<web::WebTask>* eventListener = new EventListener<web::WebTask>();
 
 		request->retain();
-		eventListener->bind([this, request](web::WebTask::Event* e){
+		eventListener->bind([this, request, eventListener](web::WebTask::Event* e){
         	if (auto res = e->getValue()){
 				CCHttpResponse* oldResponse = new extension::CCHttpResponse(request);
         		oldResponse->setSucceed(res->ok());
 				oldResponse->retain();
 
 				if (res->ok()) {
-					geode::Loader::get()->queueInMainThread([this, res, oldResponse, request](){
+					geode::Loader::get()->queueInMainThread([this, res, oldResponse, request, eventListener](){
 						auto data = res->data();
 
 						gd::vector<char>* charData = new gd::vector<char>();
@@ -63,20 +56,16 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						oldResponse->release();
 						request->release();
 						
-						EventListener<web::WebTask>* el = m_downloadListeners[request];
 						m_downloadListeners.erase(m_downloadListeners.find(request));
-						delete el;
-						delete request;
+						delete eventListener;
 					});
 				}
 				else{
 					oldResponse->release();
 					request->release();
 					
-					EventListener<web::WebTask>* el = m_downloadListeners[request];
 					m_downloadListeners.erase(m_downloadListeners.find(request));
-					delete el;
-					delete request;
+					delete eventListener;
 				}
 			}
 		});
