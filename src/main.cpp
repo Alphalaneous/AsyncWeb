@@ -28,12 +28,13 @@ class $modify(MyCCHttpClient, CCHttpClient){
 		EventListener<web::WebTask>* eventListener = new EventListener<web::WebTask>();
 
 		request->retain();
+		
 		eventListener->bind([this, request, eventListener](web::WebTask::Event* e){
         	if (auto res = e->getValue()){
 				geode::Loader::get()->queueInMainThread([this, res, request, eventListener](){
 					CCHttpResponse* oldResponse = new extension::CCHttpResponse(request);
 					oldResponse->setSucceed(res->ok());
-					oldResponse->retain();
+
 					if (res->ok()) {
 						auto data = res->data();
 
@@ -43,7 +44,7 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						}
 						oldResponse->setResponseData(charData);
 						oldResponse->setResponseCode(res->code());
-						
+
 						delete charData;
 
 						SEL_HttpResponse pSelector = request->getSelector();
@@ -54,7 +55,6 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						}
 					}
 				
-					oldResponse->release();
 					request->release();
 					
 					m_downloadListeners.erase(m_downloadListeners.find(request));
