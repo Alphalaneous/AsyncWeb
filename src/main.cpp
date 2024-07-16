@@ -45,7 +45,7 @@ class $modify(MyCCHttpClient, CCHttpClient){
 					geode::Loader::get()->queueInMainThread([this, res, oldResponse, request](){
 						auto data = res->data();
 
-						std::vector<char>* charData = new std::vector<char>();
+						gd::vector<char>* charData = new gd::vector<char>();
 						for (int i = 0; i < data.size(); i++) {
 							charData->push_back(data.at(i));
 						}
