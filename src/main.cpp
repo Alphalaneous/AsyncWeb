@@ -63,7 +63,9 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						oldResponse->release();
 						request->release();
 						
+						EventListener<web::WebTask>* el = m_downloadListeners[request];
 						m_downloadListeners.erase(m_downloadListeners.find(request));
+						delete el;
 						delete request;
 					});
 				}
@@ -71,10 +73,11 @@ class $modify(MyCCHttpClient, CCHttpClient){
 					oldResponse->release();
 					request->release();
 					
+					EventListener<web::WebTask>* el = m_downloadListeners[request];
 					m_downloadListeners.erase(m_downloadListeners.find(request));
+					delete el;
 					delete request;
 				}
-				
 			}
 		});
 
