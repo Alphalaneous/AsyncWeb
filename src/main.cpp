@@ -30,12 +30,11 @@ class $modify(MyCCHttpClient, CCHttpClient){
 		request->retain();
 		eventListener->bind([this, request, eventListener](web::WebTask::Event* e){
         	if (auto res = e->getValue()){
-				CCHttpResponse* oldResponse = new extension::CCHttpResponse(request);
-        		oldResponse->setSucceed(res->ok());
-				oldResponse->retain();
-
-				if (res->ok()) {
-					geode::Loader::get()->queueInMainThread([this, res, oldResponse, request, eventListener](){
+				geode::Loader::get()->queueInMainThread([this, res, request, eventListener](){
+					CCHttpResponse* oldResponse = new extension::CCHttpResponse(request);
+					oldResponse->setSucceed(res->ok());
+					oldResponse->retain();
+					if (res->ok()) {
 						auto data = res->data();
 
 						gd::vector<char>* charData = new gd::vector<char>();
@@ -43,8 +42,9 @@ class $modify(MyCCHttpClient, CCHttpClient){
 							charData->push_back(data.at(i));
 						}
 						oldResponse->setResponseData(charData);
-						delete charData;
 						oldResponse->setResponseCode(res->code());
+						
+						delete charData;
 
 						SEL_HttpResponse pSelector = request->getSelector();
 						CCObject* pTarget = request->getTarget();
@@ -52,21 +52,14 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						if (pTarget && pSelector) {
 							(pTarget->*pSelector)(this, oldResponse);
 						}
-
-						oldResponse->release();
-						request->release();
-						
-						m_downloadListeners.erase(m_downloadListeners.find(request));
-						delete eventListener;
-					});
-				}
-				else{
+					}
+				
 					oldResponse->release();
 					request->release();
 					
 					m_downloadListeners.erase(m_downloadListeners.find(request));
 					delete eventListener;
-				}
+				});
 			}
 		});
 
