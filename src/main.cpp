@@ -28,19 +28,17 @@ class $modify(MyCCHttpClient, CCHttpClient){
 		EventListener<web::WebTask>* eventListener = new EventListener<web::WebTask>();
 		m_downloadListeners[request] = eventListener;
 
-		request->retain();
+		CCHttpResponse* response = new CCHttpResponse(request);
+		if(!response) {
+			delete response;
+			return;
+		}
+		response->autorelease();
 
-		eventListener->bind([this, request, eventListener](web::WebTask::Event* e){
+		eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e){
         	if (auto res = e->getValue()){
-				Loader::get()->queueInMainThread([this, res, request, eventListener](){
-					CCHttpResponse* oldResponse = new CCHttpResponse(request);
-					if(!oldResponse) {
-						request->release();
-						delete oldResponse;
-						return;
-					}
-					oldResponse->autorelease();
-					oldResponse->setSucceed(res->ok());
+				Loader::get()->queueInMainThread([this, res, request, eventListener, response](){
+					response->setSucceed(res->ok());
 
 					if (res->ok()) {
 						auto data = res->data();
@@ -49,8 +47,8 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						for (int i = 0; i < data.size(); i++) {
 							charData->push_back(data.at(i));
 						}
-						oldResponse->setResponseData(charData);
-						oldResponse->setResponseCode(res->code());
+						response->setResponseData(charData);
+						response->setResponseCode(res->code());
 
 						delete charData;
 
@@ -58,10 +56,9 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						CCObject* pTarget = request->getTarget();
 
 						if (pTarget && pSelector) {
-							(pTarget->*pSelector)(this, oldResponse);
+							(pTarget->*pSelector)(this, response);
 						}
 					}
-					request->release();
 					
 					m_downloadListeners.erase(m_downloadListeners.find(request));
 					delete eventListener;
