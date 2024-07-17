@@ -37,7 +37,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         log::info("got here 2");
 
         eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
-            if (auto res = e->getValue()) {
+            /*if (auto res = e->getValue()) {
                 Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
                     response->setSucceed(res->ok());
 
@@ -69,7 +69,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                     //});
 
                 });
-            }
+            }*/
         });
 
         log::info("got here 6");
