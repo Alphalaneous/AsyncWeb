@@ -13,7 +13,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
     void send(CCHttpRequest* request) {
         auto req = web::WebRequest();
 
-        gd::vector<uint8_t> bytes;
+        std::vector<uint8_t> bytes;
         for (int i = 0; i < request->getRequestDataSize(); i++) {
             bytes.push_back(static_cast<uint8_t>(request->getRequestData()[i]));
         }
@@ -25,7 +25,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         req.userAgent("");
         req.version(web::HttpVersion::VERSION_2_0);
 
-        log::debug("got here 1");
+        log::info("got here 1");
 
         EventListener<web::WebTask>* eventListener = new EventListener<web::WebTask>();
         m_downloadListeners[request] = eventListener;
@@ -33,7 +33,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         CCHttpResponse* response = new CCHttpResponse(request);
         response->autorelease();
 
-        log::debug("got here 2");
+        log::info("got here 2");
 
         eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
             if (auto res = e->getValue()) {
@@ -48,7 +48,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                             charData->push_back(data.at(i));
                         }
 
-                        log::debug("got here 3");
+                        log::info("got here 3");
 
                         response->setResponseData(charData);
                         response->setResponseCode(res->code());
@@ -60,23 +60,23 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                             (pTarget->*pSelector)(this, response);
                         }
 
-                        log::debug("got here 4");
+                        log::info("got here 4");
 
                         delete charData;
 
-                        log::debug("got here 5");
+                        log::info("got here 5");
                     }
                     
                     m_downloadListeners.erase(m_downloadListeners.find(request));
 
-                    log::debug("got here 6");
+                    log::info("got here 6");
 
                     delete eventListener;
                 });
             }
         });
 
-        log::debug("got here 7");
+        log::info("got here 7");
 
         web::WebTask webtask;
 
@@ -94,10 +94,10 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                 webtask = req.post(request->getUrl());
         }
 
-        log::debug("got here 8");
+        log::info("got here 8");
 
         eventListener->setFilter(webtask);
 
-        log::debug("got here 9");
+        log::info("got here 9");
     }
 };
