@@ -35,6 +35,7 @@ class $modify(MyCCHttpClient, CCHttpClient){
 				Loader::get()->queueInMainThread([this, res, request, eventListener](){
 					CCHttpResponse* oldResponse = new CCHttpResponse(request);
 					if(!oldResponse) {
+						request->release();
 						delete oldResponse;
 						return;
 					}
