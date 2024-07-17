@@ -6,19 +6,19 @@ using namespace geode::prelude;
 
 std::map<CCHttpRequest*, EventListener<web::WebTask>*> m_downloadListeners;
 
-class $modify(MyCCHttpClient, CCHttpClient){
+class $modify(MyCCHttpClient, CCHttpClient) {
 
     //here be dragons
 
-    void send(CCHttpRequest* request){
+    void send(CCHttpRequest* request) {
         auto req = web::WebRequest();
 
         gd::vector<uint8_t> bytes;
-        for(int i = 0; i < request->getRequestDataSize(); i++){
+        for (int i = 0; i < request->getRequestDataSize(); i++) {
             bytes.push_back(static_cast<uint8_t>(request->getRequestData()[i]));
         }
     
-        if(bytes.size() > 0){
+        if (bytes.size() > 0){
             req.body(bytes);
         }
 
@@ -31,9 +31,9 @@ class $modify(MyCCHttpClient, CCHttpClient){
         CCHttpResponse* response = new CCHttpResponse(request);
         response->autorelease();
 
-        eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e){
-            if (auto res = e->getValue()){
-                Loader::get()->queueInMainThread([this, res, request, eventListener, response](){
+        eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
+            if (auto res = e->getValue()) {
+                Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
                     response->setSucceed(res->ok());
 
                     if (res->ok()) {
