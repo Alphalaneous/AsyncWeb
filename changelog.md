@@ -1,5 +1,5 @@
 # 0.1.0-alpha.3
-- Resolve some crashes.
+- Remove android support.
 
 # 0.1.0-alpha.2
 - Fix a memory leak.
