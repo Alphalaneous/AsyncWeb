@@ -4,7 +4,7 @@
 
 using namespace geode::prelude;
 
-std::map<CCHttpRequest*, EventListener<web::WebTask>*> m_downloadListeners;
+std::map<CCHttpRequest*, EventListener<web::WebTask>> m_downloadListeners;
 
 class $modify(MyCCHttpClient, CCHttpClient) {
 
@@ -27,7 +27,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
         log::info("got here 1");
 
-        EventListener<web::WebTask>* eventListener = new EventListener<web::WebTask>();
+        EventListener<web::WebTask> eventListener;
         m_downloadListeners[request] = eventListener;
 
         CCHttpResponse* response = new CCHttpResponse(request);
@@ -35,7 +35,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
         log::info("got here 2");
 
-        eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
+        eventListener.bind([this, request, eventListener, response](web::WebTask::Event* e) {
             if (auto res = e->getValue()) {
                 Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
                     response->setSucceed(res->ok());
@@ -70,8 +70,6 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                     m_downloadListeners.erase(m_downloadListeners.find(request));
 
                     log::info("got here 6");
-
-                    delete eventListener;
                 });
             }
         });
@@ -96,7 +94,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
         log::info("got here 8");
 
-        eventListener->setFilter(webtask);
+        eventListener.setFilter(webtask);
 
         log::info("got here 9");
     }
