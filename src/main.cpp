@@ -29,10 +29,6 @@ class $modify(MyCCHttpClient, CCHttpClient){
 		m_downloadListeners[request] = eventListener;
 
 		CCHttpResponse* response = new CCHttpResponse(request);
-		if(!response) {
-			delete response;
-			return;
-		}
 		response->autorelease();
 
 		eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e){
@@ -50,14 +46,14 @@ class $modify(MyCCHttpClient, CCHttpClient){
 						response->setResponseData(charData);
 						response->setResponseCode(res->code());
 
-						delete charData;
-
 						SEL_HttpResponse pSelector = request->getSelector();
 						CCObject* pTarget = request->getTarget();
 
 						if (pTarget && pSelector) {
 							(pTarget->*pSelector)(this, response);
 						}
+
+						delete charData;
 					}
 					
 					m_downloadListeners.erase(m_downloadListeners.find(request));
