@@ -4,7 +4,7 @@
 
 using namespace geode::prelude;
 
-std::map<CCHttpRequest*, std::shared_ptr<EventListener<web::WebTask>>> m_downloadListeners;
+static std::map<CCHttpRequest*, std::shared_ptr<EventListener<web::WebTask>>> m_downloadListeners;
 
 class $modify(MyCCHttpClient, CCHttpClient) {
 
@@ -14,6 +14,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         auto req = web::WebRequest();
 
         std::vector<uint8_t> bytes;
+        
         for (int i = 0; i < request->getRequestDataSize(); i++) {
             bytes.push_back(static_cast<uint8_t>(request->getRequestData()[i]));
         }
@@ -59,18 +60,19 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                         }
 
                         log::info("got here 4");
-
-                        log::info("got here 5");
                     }
-                    
-                    m_downloadListeners.erase(m_downloadListeners.find(request));
 
-                    log::info("got here 6");
+                    log::info("got here 5");
+
+                    Loader::get()->queueInMainThread([this, request]() {
+                        m_downloadListeners.erase(m_downloadListeners.find(request));
+                    });
+
                 });
             }
         });
 
-        log::info("got here 7");
+        log::info("got here 6");
 
         web::WebTask webtask;
 
@@ -88,10 +90,10 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                 webtask = req.post(request->getUrl());
         }
 
-        log::info("got here 8");
+        log::info("got here 7");
 
         eventListener->setFilter(webtask);
 
-        log::info("got here 9");
+        log::info("got here 8");
     }
 };
