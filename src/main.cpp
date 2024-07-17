@@ -32,7 +32,9 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         m_downloadListeners[request] = eventListener;
 
         CCHttpResponse* response = new CCHttpResponse(request);
+        request->retain();
         response->retain();
+        retain();
         //response->autorelease();
 
         log::info("got here 2");
