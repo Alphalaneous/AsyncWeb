@@ -13,7 +13,7 @@ class $modify(MyCCHttpClient, CCHttpClient){
 	void send(CCHttpRequest* request){
     	auto req = web::WebRequest();
 
-		std::vector<uint8_t> bytes;
+		gd::vector<uint8_t> bytes;
 		for(int i = 0; i < request->getRequestDataSize(); i++){
 			bytes.push_back(static_cast<uint8_t>(request->getRequestData()[i]));
 		}
@@ -26,12 +26,13 @@ class $modify(MyCCHttpClient, CCHttpClient){
 		req.version(web::HttpVersion::VERSION_2_0);
 
 		EventListener<web::WebTask>* eventListener = new EventListener<web::WebTask>();
+		m_downloadListeners[request] = eventListener;
 
 		request->retain();
-		
+
 		eventListener->bind([this, request, eventListener](web::WebTask::Event* e){
         	if (auto res = e->getValue()){
-				geode::Loader::get()->queueInMainThread([this, res, request, eventListener](){
+				Loader::get()->queueInMainThread([this, res, request, eventListener](){
 					CCHttpResponse* oldResponse = new extension::CCHttpResponse(request);
 					oldResponse->setSucceed(res->ok());
 
@@ -77,10 +78,8 @@ class $modify(MyCCHttpClient, CCHttpClient){
 				break;
 			default:
 				webtask = req.post(request->getUrl());
-
 		}
-		eventListener->setFilter(webtask);
 
-		m_downloadListeners[request] = eventListener;
+		eventListener->setFilter(webtask);
 	}
 };
