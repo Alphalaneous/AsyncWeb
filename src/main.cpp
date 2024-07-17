@@ -64,9 +64,9 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
                     log::info("got here 5");
 
-                    Loader::get()->queueInMainThread([this, request]() {
-                        m_downloadListeners.erase(m_downloadListeners.find(request));
-                    });
+                    //Loader::get()->queueInMainThread([this, request]() {
+                    //    m_downloadListeners.erase(m_downloadListeners.find(request));
+                    //});
 
                 });
             }
