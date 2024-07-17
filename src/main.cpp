@@ -32,24 +32,25 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         m_downloadListeners[request] = eventListener;
 
         CCHttpResponse* response = new CCHttpResponse(request);
+        response->retain();
         //response->autorelease();
 
         log::info("got here 2");
 
         eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
-            /*if (auto res = e->getValue()) {
+            if (auto res = e->getValue()) {
                 Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
                     response->setSucceed(res->ok());
 
                     if (res->ok()) {
                         auto data = res->data();
                         
-                        std::shared_ptr<gd::vector<char>> charData = std::make_shared<gd::vector<char>>();
-                        std::copy(data.begin(), data.end(), std::back_inserter(*charData));
+                        gd::vector<char> charData;
+                        std::copy(data.begin(), data.end(), std::back_inserter(charData));
 
                         log::info("got here 3");
 
-                        response->setResponseData(charData.get());
+                        response->setResponseData(&charData);
                         response->setResponseCode(res->code());
 
                         SEL_HttpResponse pSelector = request->getSelector();
@@ -64,12 +65,13 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
                     log::info("got here 5");
 
+                    m_downloadListeners.erase(m_downloadListeners.find(request));
+
                     //Loader::get()->queueInMainThread([this, request]() {
-                    //    m_downloadListeners.erase(m_downloadListeners.find(request));
                     //});
 
                 });
-            }*/
+            }
         });
 
         log::info("got here 6");
