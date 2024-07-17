@@ -33,7 +33,12 @@ class $modify(MyCCHttpClient, CCHttpClient){
 		eventListener->bind([this, request, eventListener](web::WebTask::Event* e){
         	if (auto res = e->getValue()){
 				Loader::get()->queueInMainThread([this, res, request, eventListener](){
-					CCHttpResponse* oldResponse = new extension::CCHttpResponse(request);
+					CCHttpResponse* oldResponse = new CCHttpResponse(request);
+					if(!oldResponse) {
+						delete oldResponse;
+						return;
+					}
+					oldResponse->autorelease();
 					oldResponse->setSucceed(res->ok());
 
 					if (res->ok()) {
@@ -55,7 +60,6 @@ class $modify(MyCCHttpClient, CCHttpClient){
 							(pTarget->*pSelector)(this, oldResponse);
 						}
 					}
-				
 					request->release();
 					
 					m_downloadListeners.erase(m_downloadListeners.find(request));
