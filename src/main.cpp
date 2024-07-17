@@ -42,15 +42,13 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
                     if (res->ok()) {
                         auto data = res->data();
-
-                        gd::vector<char>* charData = new gd::vector<char>();
-                        for (int i = 0; i < data.size(); i++) {
-                            charData->push_back(data.at(i));
-                        }
+                        
+                        std::shared_ptr<gd::vector<char>> charData = std::make_shared<gd::vector<char>>();
+                        std::copy(data.begin(), data.end(), std::back_inserter(*charData));
 
                         log::info("got here 3");
 
-                        response->setResponseData(charData);
+                        response->setResponseData(charData.get());
                         response->setResponseCode(res->code());
 
                         SEL_HttpResponse pSelector = request->getSelector();
@@ -61,8 +59,6 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                         }
 
                         log::info("got here 4");
-
-                        delete charData;
 
                         log::info("got here 5");
                     }
