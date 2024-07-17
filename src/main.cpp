@@ -25,11 +25,15 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         req.userAgent("");
         req.version(web::HttpVersion::VERSION_2_0);
 
+        log::debug("got here 1");
+
         EventListener<web::WebTask>* eventListener = new EventListener<web::WebTask>();
         m_downloadListeners[request] = eventListener;
 
         CCHttpResponse* response = new CCHttpResponse(request);
         response->autorelease();
+
+        log::debug("got here 2");
 
         eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
             if (auto res = e->getValue()) {
@@ -43,6 +47,9 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                         for (int i = 0; i < data.size(); i++) {
                             charData->push_back(data.at(i));
                         }
+
+                        log::debug("got here 3");
+
                         response->setResponseData(charData);
                         response->setResponseCode(res->code());
 
@@ -53,14 +60,23 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                             (pTarget->*pSelector)(this, response);
                         }
 
+                        log::debug("got here 4");
+
                         delete charData;
+
+                        log::debug("got here 5");
                     }
                     
                     m_downloadListeners.erase(m_downloadListeners.find(request));
+
+                    log::debug("got here 6");
+
                     delete eventListener;
                 });
             }
         });
+
+        log::debug("got here 7");
 
         web::WebTask webtask;
 
@@ -78,6 +94,10 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                 webtask = req.post(request->getUrl());
         }
 
+        log::debug("got here 8");
+
         eventListener->setFilter(webtask);
+
+        log::debug("got here 9");
     }
 };
