@@ -43,13 +43,10 @@ class $modify(MyCCHttpClient, CCHttpClient) {
     void send(CCHttpRequest* request) {
         auto req = web::WebRequest();
 
-        std::vector<uint8_t> bytes;
-        
-        for (int i = 0; i < request->getRequestDataSize(); i++) {
-            bytes.push_back(static_cast<uint8_t>(request->getRequestData()[i]));
-        }
+        auto start = reinterpret_cast<uint8_t *>(request->getRequestData());
+        std::vector bytes(start, start + request->getRequestDataSize());
     
-        if (bytes.size() > 0){
+        if (!bytes.empty()){
             req.body(bytes);
         }
 
@@ -60,20 +57,18 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         m_downloadListeners[request] = eventListener;
 
         CCHttpResponse* response = new CCHttpResponse(request);
-        request->retain();
-        
+        response->retain();
+
         eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
             if (auto res = e->getValue()) {
                 Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
                     response->setSucceed(res->ok());
 
                     if (res->ok()) {
-                        auto data = res->data();
                         
-                        gd::vector<char> charData;
-                        std::copy(data.begin(), data.end(), std::back_inserter(charData));
+                        gd::vector<uint8_t> data = res->data();
 
-                        response->setResponseData(&charData);
+                        response->setResponseData(reinterpret_cast<gd::vector<char>*>(&data));
                         response->setResponseCode(res->code());
 
                         SEL_HttpResponse pSelector = request->getSelector();
@@ -84,6 +79,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                         }
                     }
 
+                    response->release();
                     m_downloadListeners.erase(m_downloadListeners.find(request));
                 });
             }
