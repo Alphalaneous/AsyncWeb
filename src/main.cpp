@@ -59,8 +59,9 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         std::shared_ptr<EventListener<web::WebTask>> eventListener = std::make_shared<EventListener<web::WebTask>>();
         m_downloadListeners[request] = eventListener;
 
-        std::shared_ptr<CCHttpResponse> response = std::make_shared<CCHttpResponse>(request);
-
+        CCHttpResponse* response = new CCHttpResponse(request);
+        request->retain();
+        
         eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
             if (auto res = e->getValue()) {
                 Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
@@ -79,7 +80,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                         CCObject* pTarget = request->getTarget();
 
                         if (pTarget && pSelector) {
-                            (pTarget->*pSelector)(this, response.get());
+                            (pTarget->*pSelector)(this, response);
                         }
                     }
 
@@ -103,7 +104,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
             default:
                 webtask = req.post(request->getUrl());
         }
-
         eventListener->setFilter(webtask);
+
     }
 };
