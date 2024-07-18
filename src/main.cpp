@@ -59,8 +59,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         std::shared_ptr<EventListener<web::WebTask>> eventListener = std::make_shared<EventListener<web::WebTask>>();
         m_downloadListeners[request] = eventListener;
 
-        CCHttpResponse* response = new CCHttpResponse(request);
-        response->autorelease();
+        std::shared_ptr<CCHttpResponse> response = std::make_shared<CCHttpResponse>(request);
 
         eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
             if (auto res = e->getValue()) {
@@ -80,7 +79,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                         CCObject* pTarget = request->getTarget();
 
                         if (pTarget && pSelector) {
-                            (pTarget->*pSelector)(this, response);
+                            (pTarget->*pSelector)(this, response.get());
                         }
                     }
 
