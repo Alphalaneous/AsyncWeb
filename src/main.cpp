@@ -19,13 +19,13 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
     void send(CCHttpRequest* request) {
 
+        log::info("URL: {}", request->getUrl());
+
         /*if(url.ends_with(".php") && url.find("backup") != std::string::npos){
             log::info("HERE!");
             CCHttpClient::send(request);
             return;
         }*/
-
-        log::info("URL: {}", request->getUrl());
 
         auto req = web::WebRequest();
 
