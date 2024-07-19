@@ -21,6 +21,8 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
         std::string url = std::string(request->getUrl());
 
+        log::info("URL: {}", url);
+
         if(url.ends_with(".php") && url.find("backup") != std::string::npos){
             log::info("HERE!");
             CCHttpClient::send(request);
