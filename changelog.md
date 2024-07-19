@@ -1,5 +1,5 @@
 # 0.1.0-alpha.5
-- Do not touch backups due to bug on android.
+- I added a log and now it's fixed? Android :D
 
 # 0.1.0-alpha.4
 - Add android support back (Thank you @sleepyut).
