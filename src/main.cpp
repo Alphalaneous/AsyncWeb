@@ -19,8 +19,6 @@ class $modify(MyCCHttpClient, CCHttpClient) {
 
     void send(CCHttpRequest* request) {
 
-        log::info("URL: {}", request->getUrl());
-
         auto req = web::WebRequest();
 
         auto start = reinterpret_cast<uint8_t*>(request->getRequestData());
@@ -43,20 +41,16 @@ class $modify(MyCCHttpClient, CCHttpClient) {
             if (auto res = e->getValue()) {
                 Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
                     response->setSucceed(res->ok());
+                    response->setResponseCode(res->code());
 
-                    if (res->ok()) {
-                        
-                        gd::vector<uint8_t> data = res->data();
+                    gd::vector<uint8_t> data = res->data();
+                    response->setResponseData(reinterpret_cast<gd::vector<char>*>(&data));
+                    
+                    SEL_HttpResponse pSelector = request->getSelector();
+                    CCObject* pTarget = request->getTarget();
 
-                        response->setResponseData(reinterpret_cast<gd::vector<char>*>(&data));
-                        response->setResponseCode(res->code());
-
-                        SEL_HttpResponse pSelector = request->getSelector();
-                        CCObject* pTarget = request->getTarget();
-
-                        if (pTarget && pSelector) {
-                            (pTarget->*pSelector)(this, response);
-                        }
+                    if (pTarget && pSelector) {
+                        (pTarget->*pSelector)(this, response);
                     }
 
                     response->release();

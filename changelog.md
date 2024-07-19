@@ -1,5 +1,5 @@
 # 0.1.0-alpha.5
-- I added a log and now it's fixed? Android :D
+- Fixed a bug where only successful responses went through, if it failed, it would forever load.
 
 # 0.1.0-alpha.4
 - Add android support back (Thank you @sleepyut).
