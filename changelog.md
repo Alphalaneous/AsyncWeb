@@ -1,3 +1,9 @@
+# 0.1.0-alpha.7
+- Progress bars work now!
+
+# 0.1.0-alpha.6
+- Added links.
+
 # 0.1.0-alpha.5
 - Fixed a bug where only successful responses went through, if it failed, it would forever load.
 

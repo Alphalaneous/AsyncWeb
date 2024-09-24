@@ -6,10 +6,15 @@
 using namespace geode::prelude;
 
 /*
-
     @sleepyut is based, thanks for helping fix this mess to work for android!!
-
 */
+
+class MyCCHttpRequest : public CCHttpRequest {
+    public:
+    void setProgress(int progress) {
+        _downloadProgress = progress;
+    }
+};
 
 static std::map<CCHttpRequest*, std::shared_ptr<EventListener<web::WebTask>>> m_downloadListeners;
 
@@ -52,10 +57,16 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                     if (pTarget && pSelector) {
                         (pTarget->*pSelector)(this, response);
                     }
-
                     response->release();
                     m_downloadListeners.erase(m_downloadListeners.find(request));
                 });
+            }
+            if (auto progress = e->getProgress()) {
+                if (auto pr = progress->downloadProgress()) {
+                    if (pr.has_value()) {
+                        static_cast<MyCCHttpRequest*>(request)->setProgress(pr.value());
+                    }
+                }
             }
         });
 
