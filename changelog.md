@@ -1,3 +1,8 @@
+# 0.1.0-beta.1
+- Cancellation now works properly.
+
+With that final major fix, AsyncWeb is leaving Alpha and going into Beta. Future updates will likely contain larger changes such as reworking song queues. 
+
 # 0.1.0-alpha.7
 - Progress bars work now!
 

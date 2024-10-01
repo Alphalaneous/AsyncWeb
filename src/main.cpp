@@ -14,6 +14,9 @@ class MyCCHttpRequest : public CCHttpRequest {
     void setProgress(int progress) {
         _downloadProgress = progress;
     }
+    bool shouldCancel() {
+        return _shouldCancel;
+    }
 };
 
 static std::map<CCHttpRequest*, std::shared_ptr<EventListener<web::WebTask>>> m_downloadListeners;
@@ -62,11 +65,18 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                 });
             }
             if (auto progress = e->getProgress()) {
+                if (static_cast<MyCCHttpRequest*>(request)->shouldCancel()) {
+                    e->cancel();
+                }
                 if (auto pr = progress->downloadProgress()) {
                     if (pr.has_value()) {
                         static_cast<MyCCHttpRequest*>(request)->setProgress(pr.value());
                     }
                 }
+            }
+            if (e->isCancelled()) {
+                response->release();
+                m_downloadListeners.erase(m_downloadListeners.find(request));
             }
         });
 
