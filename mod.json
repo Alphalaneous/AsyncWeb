@@ -1,17 +1,17 @@
 {
-	"geode": "4.0.0-alpha.1",
+	"geode": "4.0.0-beta.1",
 	"gd": {
 		"win": "2.2074",
 		"mac": "2.2074",
 		"android": "2.2074"
 	},
-	"version": "v0.1.0-beta.2",
+	"version": "v0.1.0",
 	"id": "alphalaneous.asyncweb",
 	"name": "AsyncWeb",
 	"developer": "Alphalaneous",
 	"description": "Mod that makes web requests asynchronous.",
 	"links": {
-        "homepage": "https://twitter.com/alphalaneous",
+        "homepage": "https://linktr.ee/Alphalaneous",
         "source": "https://github.com/Alphalaneous/AsyncWeb",
         "community": "https://discord.gg/Txn2CA5dHF"
     }
