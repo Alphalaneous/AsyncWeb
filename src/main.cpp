@@ -1,7 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
 #include <Geode/modify/CCHttpClient.hpp>
-#include <Geode/modify/MusicDownloadManager.hpp>
 
 using namespace geode::prelude;
 
@@ -26,7 +25,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
     //here be dragons
 
     void send(CCHttpRequest* request) {
-
+        
         auto req = web::WebRequest();
 
         auto start = reinterpret_cast<uint8_t*>(request->getRequestData());
@@ -65,6 +64,7 @@ class $modify(MyCCHttpClient, CCHttpClient) {
                 });
             }
             if (auto progress = e->getProgress()) {
+                
                 if (static_cast<MyCCHttpRequest*>(request)->shouldCancel()) {
                     e->cancel();
                 }

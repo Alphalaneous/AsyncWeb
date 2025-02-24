@@ -1,11 +1,11 @@
 {
-	"geode": "4.0.0-beta.1",
+	"geode": "4.2.0",
 	"gd": {
 		"win": "2.2074",
 		"mac": "2.2074",
 		"android": "2.2074"
 	},
-	"version": "v0.1.0",
+	"version": "v0.1.1",
 	"id": "alphalaneous.asyncweb",
 	"name": "AsyncWeb",
 	"developer": "Alphalaneous",
@@ -14,5 +14,8 @@
         "homepage": "https://linktr.ee/Alphalaneous",
         "source": "https://github.com/Alphalaneous/AsyncWeb",
         "community": "https://discord.gg/Txn2CA5dHF"
-    }
+    },
+	"tags": [
+		"online", "enhancement"
+	]
 }

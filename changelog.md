@@ -1,3 +1,6 @@
+$ 0.1.1
+- Add tags
+
 # 0.1.0-beta.1
 - Cancellation now works properly.
 
