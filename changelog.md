@@ -1,4 +1,7 @@
-$ 0.1.1
+# 0.1.2
+- iOS support
+
+# 0.1.1
 - Add tags
 
 # 0.1.0-beta.1
