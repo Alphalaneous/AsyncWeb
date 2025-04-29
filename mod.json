@@ -6,7 +6,7 @@
 		"android": "2.2074",
 		"ios": "2.2074"
 	},
-	"version": "v0.1.3",
+	"version": "v0.1.4",
 	"id": "alphalaneous.asyncweb",
 	"name": "AsyncWeb",
 	"developer": "Alphalaneous",
@@ -18,5 +18,12 @@
     },
 	"tags": [
 		"online", "enhancement"
-	]
+	],
+	"dependencies": [
+		{
+            "id": "alphalaneous.alphas_geode_utils",
+            "version": ">=v1.1.2",
+            "importance": "required"
+        }
+    ]
 }

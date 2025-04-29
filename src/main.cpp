@@ -1,12 +1,9 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
 #include <Geode/modify/CCHttpClient.hpp>
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 
 using namespace geode::prelude;
-
-/*
-    @sleepyut is based, thanks for helping fix this mess to work for android!!
-*/
 
 class MyCCHttpRequest : public CCHttpRequest {
     public:
@@ -18,14 +15,21 @@ class MyCCHttpRequest : public CCHttpRequest {
     }
 };
 
-static std::map<CCHttpRequest*, std::shared_ptr<EventListener<web::WebTask>>> m_downloadListeners;
+class $objectModify(FieldsCCHttpRequest, CCHttpRequest) {
+    struct Fields {
+        std::shared_ptr<EventListener<web::WebTask>> m_downloadListener;
+    };
+
+    void modify() {}
+};
 
 class $modify(MyCCHttpClient, CCHttpClient) {
 
-    //here be dragons
-
     void send(CCHttpRequest* request) {
         
+        auto myRequest = static_cast<MyCCHttpRequest*>(request);
+        auto fieldsRequest = reinterpret_cast<FieldsCCHttpRequest*>(request);
+        auto requestFields = fieldsRequest->m_fields.self();
         auto req = web::WebRequest();
 
         auto start = reinterpret_cast<uint8_t*>(request->getRequestData());
@@ -38,45 +42,38 @@ class $modify(MyCCHttpClient, CCHttpClient) {
         req.userAgent("");
         req.version(web::HttpVersion::VERSION_2_0);
 
-        std::shared_ptr<EventListener<web::WebTask>> eventListener = std::make_shared<EventListener<web::WebTask>>();
-        m_downloadListeners[request] = eventListener;
+        requestFields->m_downloadListener = std::make_shared<EventListener<web::WebTask>>();
 
-        CCHttpResponse* response = new CCHttpResponse(request);
-        response->retain();
+        Ref<CCHttpResponse> response = new CCHttpResponse(request);
 
-        eventListener->bind([this, request, eventListener, response](web::WebTask::Event* e) {
+        requestFields->m_downloadListener->bind([this, response, myRequest](web::WebTask::Event* e) {
             if (auto res = e->getValue()) {
-                Loader::get()->queueInMainThread([this, res, request, eventListener, response]() {
-                    response->setSucceed(res->ok());
-                    response->setResponseCode(res->code());
+                response->setSucceed(res->ok());
+                response->setResponseCode(res->code());
 
-                    gd::vector<uint8_t> data = res->data();
-                    response->setResponseData(reinterpret_cast<gd::vector<char>*>(&data));
-                    
-                    SEL_HttpResponse pSelector = request->getSelector();
-                    CCObject* pTarget = request->getTarget();
+                gd::vector<uint8_t> data = res->data();
+                response->setResponseData(reinterpret_cast<gd::vector<char>*>(&data));
+                
+                SEL_HttpResponse pSelector = myRequest->getSelector();
+                CCObject* pTarget = myRequest->getTarget();
 
-                    if (pTarget && pSelector) {
-                        (pTarget->*pSelector)(this, response);
-                    }
-                    response->release();
-                    m_downloadListeners.erase(m_downloadListeners.find(request));
-                });
+                if (pTarget && pSelector) {
+                    (pTarget->*pSelector)(this, response);
+                }
+                myRequest->release();
             }
             if (auto progress = e->getProgress()) {
-                
-                if (static_cast<MyCCHttpRequest*>(request)->shouldCancel()) {
+                if (myRequest->shouldCancel()) {
                     e->cancel();
                 }
                 if (auto pr = progress->downloadProgress()) {
                     if (pr.has_value()) {
-                        static_cast<MyCCHttpRequest*>(request)->setProgress(pr.value());
+                        myRequest->setProgress(pr.value());
                     }
                 }
             }
             if (e->isCancelled()) {
-                response->release();
-                m_downloadListeners.erase(m_downloadListeners.find(request));
+                myRequest->release();
             }
         });
 
@@ -95,7 +92,6 @@ class $modify(MyCCHttpClient, CCHttpClient) {
             default:
                 webtask = req.post(request->getUrl());
         }
-        eventListener->setFilter(webtask);
-
+        requestFields->m_downloadListener->setFilter(webtask);
     }
 };

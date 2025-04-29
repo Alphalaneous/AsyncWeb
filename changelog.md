@@ -1,3 +1,7 @@
+# 0.1.4
+- Code cleanup
+- Fix a leak
+
 # 0.1.3
 - iOS support
 
